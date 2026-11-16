@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
+<project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -40,43 +40,59 @@
       <version>4.0.0</version>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.glassfish.web</groupId>
       <artifactId>jakarta.servlet.jsp.jstl</artifactId>
       <version>3.0.1</version>
     </dependency>
 
-    <!-- Hibernate Core (JPA 3.0) -->
+    <!-- 3. Hibernate Core (JPA 3.0) -->
     <dependency>
-        <groupId>org.hibernate.orm</groupId>
-        <artifactId>hibernate-core</artifactId>
-        <version>6.4.4.Final</version> <!-- Bản ổn định cho Java 17/21 & Tomcat 11 -->
+      <groupId>org.hibernate.orm</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>6.4.4.Final</version>
     </dependency>
 
-    <!-- Hibernate Validator -->
+    <!-- 4. Hibernate Validator -->
     <dependency>
-        <groupId>org.hibernate.validator</groupId>
-        <artifactId>hibernate-validator</artifactId>
-        <version>8.0.1.Final</version>
-    </dependency>
-    <dependency>
-        <groupId>jakarta.validation</groupId>
-        <artifactId>jakarta.validation-api</artifactId>
-        <version>3.0.2</version>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>8.0.1.Final</version>
     </dependency>
 
-    <!-- 3. MS SQL Server JDBC Driver -->
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>3.0.2</version>
+    </dependency>
+
+    <!-- 5. MS SQL Server JDBC Driver -->
     <dependency>
       <groupId>com.microsoft.sqlserver</groupId>
       <artifactId>mssql-jdbc</artifactId>
       <version>12.8.1.jre11</version>
     </dependency>
 
-    <!-- 4. Apache Commons IO (Hỗ trợ upload & hiển thị hình ảnh) -->
+    <!-- 6. Apache Commons IO -->
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.15.1</version>
+    </dependency>
+
+    <!-- 7. Jakarta Mail (Gui Email OTP) -->
+    <dependency>
+      <groupId>com.sun.mail</groupId>
+      <artifactId>jakarta.mail</artifactId>
+      <version>2.0.1</version>
+    </dependency>
+
+    <!-- 8. BCrypt (Ma hoa mat khau) -->
+    <dependency>
+      <groupId>org.mindrot</groupId>
+      <artifactId>jbcrypt</artifactId>
+      <version>0.4</version>
     </dependency>
 
     <!-- JUnit Testing -->
@@ -88,11 +104,9 @@
     </dependency>
   </dependencies>
 
-  <!--Tạo Maven Project và cấu hình dependency trong file pom.xml-->
   <build>
     <finalName>shopping_servelt_service_mvc_jpa</finalName>
     <plugins>
-     <!-- Plugin bi ên dịch mã nguồn Java 21 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -102,8 +116,7 @@
           <target>21</target>
         </configuration>
       </plugin>
-      
-       <!-- Plugin đóng gói ứng dụng web thành file .war -->
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>

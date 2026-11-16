@@ -89,4 +89,34 @@ public class UserDao implements IUserDao {
             enma.close();
         }
     }
+
+    @Override
+    public User findByEmail(String email) {
+        EntityManager enma = JPAConfig.getEntityManager();
+        try {
+            TypedQuery<User> query = enma.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
+            query.setParameter("email", email);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            enma.close();
+        }
+    }
+
+    @Override
+    public void update(User user) {
+        EntityManager enma = JPAConfig.getEntityManager();
+        EntityTransaction trans = enma.getTransaction();
+        try {
+            trans.begin();
+            enma.merge(user);
+            trans.commit();
+        } catch (Exception e) {
+            trans.rollback();
+            throw e;
+        } finally {
+            enma.close();
+        }
+    }
 }

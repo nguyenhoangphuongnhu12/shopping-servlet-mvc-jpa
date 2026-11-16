@@ -11,4 +11,7 @@ public interface IUserService {
     boolean checkExistUsername(String username);
     boolean checkExistPhone(String phone);
     void updatePassword(String email, String newPassword);
+    boolean verifyOtp(String email, String otp);
+    boolean sendForgotPasswordOtp(String email);
+    boolean resetPasswordWithOtp(String email, String otp, String newPassword);
 }

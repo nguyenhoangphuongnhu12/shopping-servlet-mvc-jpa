@@ -17,6 +17,12 @@ public class User implements Serializable {
     @Column(name = "email", columnDefinition = "NVARCHAR(255) NULL")
     private String email;
 
+    @Column(name = "status")
+    private boolean status; // false (0) = chưa kích hoạt, true (1) = đã kích hoạt
+
+    @Column(name = "otpCode", length = 10)
+    private String otpCode;
+
     @Column(name = "userName", columnDefinition = "NVARCHAR(255) NOT NULL")
     private String userName;
 
@@ -40,9 +46,11 @@ public class User implements Serializable {
 
     public User() {}
 
-    public User(String email, String userName, String fullName, String passWord, 
+    public User(String email, boolean status, String otpCode, String userName, String fullName, String passWord, 
                 String avatar, int roleid, String phone, Date createdDate) {
         this.email = email;
+        this.status = status;
+        this.otpCode = otpCode;
         this.userName = userName;
         this.fullName = fullName;
         this.passWord = passWord;
@@ -56,6 +64,10 @@ public class User implements Serializable {
     public void setId(int id) { this.id = id; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+    public boolean getStatus() { return status; }
+    public void setStatus(boolean status) { this.status = status; }
+    public String getOtpCode() { return otpCode; }
+public void setOtpCode(String otpCode) { this.otpCode = otpCode; }
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
     public String getFullName() { return fullName; }

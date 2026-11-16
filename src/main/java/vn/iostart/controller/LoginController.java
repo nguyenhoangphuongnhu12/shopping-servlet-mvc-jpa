@@ -70,7 +70,12 @@ public class LoginController extends HttpServlet {
             }
             resp.sendRedirect(req.getContextPath() + "/waiting");
         } else {
-            alertMsg = "Tài khoản hoặc mật khẩu không đúng";
+            User checkUser = service.get(username);
+            if (checkUser != null && !checkUser.getStatus()) {
+                alertMsg = "Tài khoản chưa được kích hoạt qua OTP!";
+            } else {
+                alertMsg = "Tài khoản hoặc mật khẩu không đúng";
+            }
             req.setAttribute("alert", alertMsg);
             req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
         }
