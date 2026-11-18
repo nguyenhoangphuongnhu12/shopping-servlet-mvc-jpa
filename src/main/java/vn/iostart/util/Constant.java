@@ -11,4 +11,7 @@ public class Constant {
     // Đường dẫn cố định tới các trang giao diện JSP
     public static final String REGISTER = "/views/register.jsp";
     public static final String LOGIN = "/views/login.jsp";
+
+    public static final String UPLOAD_DIRECTORY = "D:\\LT_Web\\shopping_servelt_service_mvc\\upload";
+    public static final String DEFAULT_FILENAME = "default.file";
 }

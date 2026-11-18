@@ -1,7 +1,6 @@
 package vn.iostart.entity;
 
 import java.io.Serializable;
-import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
@@ -24,9 +23,6 @@ public class Category implements Serializable {
     @Column(name = "Status")
     private int status;
 
-    @OneToMany(mappedBy = "category")
-    private List<Video> videos;
-
     public Category() {}
 
     public int getCategoryid() { return categoryid; }
@@ -37,6 +33,4 @@ public class Category implements Serializable {
     public void setImages(String images) { this.images = images; }
     public int getStatus() { return status; }
     public void setStatus(int status) { this.status = status; }
-    public List<Video> getVideos() { return videos; }
-    public void setVideos(List<Video> videos) { this.videos = videos; }
 }

@@ -13,8 +13,16 @@
         <!-- Sidebar Admin -->
         <div class="bg-dark text-white p-3 vh-100" style="width: 250px;">
             <h4 class="text-warning mb-4">ADMIN PANEL</h4>
-            <ul class="nav nav-pills flex-column mb-auto">
-                <li class="nav-item"><a href="${pageContext.request.contextPath}/admin/category/list" class="nav-link text-white active">📁 Quản lý Danh mục</a></li>
+            <ul class="nav nav-pills flex-column mb-auto gap-1">
+                <li class="nav-item">
+                    <a href="${pageContext.request.contextPath}/admin/category/list" class="nav-link text-white">📁 Quản lý Danh mục</a>
+                </li>
+                <li class="nav-item">
+                    <a href="${pageContext.request.contextPath}/video" class="nav-link text-white">🎬 Quản lý Video</a>
+                </li>
+                <li class="nav-item">
+                    <a href="${pageContext.request.contextPath}/home" class="nav-link text-white">🏠 Trang chủ Video</a>
+                </li>
             </ul>
             <hr>
             <a href="${pageContext.request.contextPath}/logout" class="btn btn-danger w-100">Đăng xuất</a>

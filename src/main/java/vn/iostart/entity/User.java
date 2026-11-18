@@ -2,6 +2,7 @@ package vn.iostart.entity;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
@@ -44,6 +45,9 @@ public class User implements Serializable {
     @Column(name = "createdDate")
     private Date createdDate;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Video> videos;
+
     public User() {}
 
     public User(String email, boolean status, String otpCode, String userName, String fullName, String passWord, 
@@ -67,7 +71,7 @@ public class User implements Serializable {
     public boolean getStatus() { return status; }
     public void setStatus(boolean status) { this.status = status; }
     public String getOtpCode() { return otpCode; }
-public void setOtpCode(String otpCode) { this.otpCode = otpCode; }
+    public void setOtpCode(String otpCode) { this.otpCode = otpCode; }
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
     public String getFullName() { return fullName; }
@@ -82,4 +86,7 @@ public void setOtpCode(String otpCode) { this.otpCode = otpCode; }
     public void setPhone(String phone) { this.phone = phone; }
     public Date getCreatedDate() { return createdDate; }
     public void setCreatedDate(Date createdDate) { this.createdDate = createdDate; }
+
+    public List<Video> getVideos() { return videos; }
+    public void setVideos(List<Video> videos) { this.videos = videos; }
 }
