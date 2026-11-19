@@ -5,11 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Quên Mật Khẩu</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .auth-box { max-width: 480px; margin: 60px auto; padding: 30px; border: 1px solid #e0e0e0; background: #fff; }
+        .auth-box { max-width: 480px; margin: 40px auto; padding: 30px; border: 1px solid #e0e0e0; background: #fff; border-radius: 6px; }
         .auth-title { font-size: 24px; color: #666; text-align: center; margin-bottom: 12px; font-weight: 300; }
         .auth-subtitle { font-size: 13px; color: #777; text-align: center; margin-bottom: 25px; }
         .input-group-text { background-color: #fff; border-right: none; color: #999; width: 45px; justify-content: center; }
@@ -23,7 +20,7 @@
 </head>
 <body>
 
-<div class="auth-box">
+<div class="auth-box shadow-sm">
     <h3 class="auth-title">Quên Mật Khẩu</h3>
     <p class="auth-subtitle">Nhập địa chỉ email đã đăng ký để nhận mã OTP khôi phục mật khẩu.</p>
 
@@ -31,10 +28,11 @@
         <div class="alert alert-danger py-2" style="font-size: 13px;">${alert}</div>
     </c:if>
 
-    <form action="${pageContext.request.contextPath}/forgot-password" method="post">
-        <div class="input-group mb-4">
+    <form action="${pageContext.request.contextPath}/forgot-password" method="post" class="needs-validation" novalidate>
+        <div class="input-group has-validation mb-4">
             <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-            <input type="email" name="email" class="form-control py-2" placeholder="Nhập email của bạn" required>
+            <input type="email" name="email" value="${email}" class="form-control py-2" placeholder="Nhập email của bạn" required>
+            <div class="invalid-feedback">Vui lòng nhập đúng định dạng Email đã đăng ký!</div>
         </div>
 
         <button type="submit" class="btn btn-custom w-100 mb-4">Gửi mã OTP</button>
@@ -45,5 +43,19 @@
     </form>
 </div>
 
+<script>
+(() => {
+    'use strict';
+    document.querySelectorAll('.needs-validation').forEach(form => {
+        form.addEventListener('submit', e => {
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+</script>
 </body>
 </html>

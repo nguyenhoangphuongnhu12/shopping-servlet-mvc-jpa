@@ -5,11 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Xác Thực Mã OTP</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .auth-box { max-width: 480px; margin: 60px auto; padding: 30px; border: 1px solid #e0e0e0; background: #fff; }
+        .auth-box { max-width: 480px; margin: 40px auto; padding: 30px; border: 1px solid #e0e0e0; background: #fff; border-radius: 6px; }
         .auth-title { font-size: 24px; color: #666; text-align: center; margin-bottom: 12px; font-weight: 300; }
         .auth-subtitle { font-size: 13px; color: #777; text-align: center; margin-bottom: 25px; }
         .input-group-text { background-color: #fff; border-right: none; color: #999; width: 45px; justify-content: center; }
@@ -23,7 +20,7 @@
 </head>
 <body>
 
-<div class="auth-box">
+<div class="auth-box shadow-sm">
     <h3 class="auth-title">Xác Thực Tài Khoản</h3>
     <p class="auth-subtitle">
         Mã xác thực OTP gồm 6 chữ số đã được gửi tới email:<br>
@@ -34,10 +31,11 @@
         <div class="alert alert-danger py-2" style="font-size: 13px;">${alert}</div>
     </c:if>
 
-    <form action="${pageContext.request.contextPath}/verify-otp" method="post">
-        <div class="input-group mb-4">
+    <form action="${pageContext.request.contextPath}/verify-otp" method="post" class="needs-validation" novalidate>
+        <div class="input-group has-validation mb-4">
             <span class="input-group-text"><i class="fa-solid fa-shield-halved"></i></span>
-            <input type="text" name="otp" maxlength="6" class="form-control py-2 text-center" placeholder="Nhập mã OTP" required>
+            <input type="text" name="otp" maxlength="6" pattern="^[0-9]{6}$" class="form-control py-2 text-center" placeholder="Nhập mã OTP" required>
+            <div class="invalid-feedback text-center" style="letter-spacing: normal; font-weight: normal;">Vui lòng nhập đúng mã OTP gồm 6 chữ số!</div>
         </div>
 
         <button type="submit" class="btn btn-custom w-100 mb-4">Xác nhận kích hoạt</button>
@@ -48,5 +46,19 @@
     </form>
 </div>
 
+<script>
+(() => {
+    'use strict';
+    document.querySelectorAll('.needs-validation').forEach(form => {
+        form.addEventListener('submit', e => {
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+</script>
 </body>
 </html>

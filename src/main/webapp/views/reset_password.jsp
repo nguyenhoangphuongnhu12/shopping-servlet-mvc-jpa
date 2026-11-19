@@ -5,11 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Đặt Lại Mật Khẩu</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .auth-box { max-width: 480px; margin: 60px auto; padding: 30px; border: 1px solid #e0e0e0; background: #fff; }
+        .auth-box { max-width: 480px; margin: 40px auto; padding: 30px; border: 1px solid #e0e0e0; background: #fff; border-radius: 6px; }
         .auth-title { font-size: 24px; color: #666; text-align: center; margin-bottom: 12px; font-weight: 300; }
         .auth-subtitle { font-size: 13px; color: #777; text-align: center; margin-bottom: 25px; }
         .input-group-text { background-color: #fff; border-right: none; color: #999; width: 45px; justify-content: center; }
@@ -23,7 +20,7 @@
 </head>
 <body>
 
-<div class="auth-box">
+<div class="auth-box shadow-sm">
     <h3 class="auth-title">Đặt Lại Mật Khẩu</h3>
     <p class="auth-subtitle">
         Nhập mã OTP đã gửi tới <strong class="text-dark">${sessionScope.resetEmail}</strong> và mật khẩu mới.
@@ -33,15 +30,17 @@
         <div class="alert alert-danger py-2" style="font-size: 13px;">${alert}</div>
     </c:if>
 
-    <form action="${pageContext.request.contextPath}/reset-password" method="post">
-        <div class="input-group mb-3">
+    <form action="${pageContext.request.contextPath}/reset-password" method="post" class="needs-validation" novalidate>
+        <div class="input-group has-validation mb-3">
             <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
-            <input type="text" name="otp" maxlength="6" class="form-control py-2" placeholder="Mã OTP 6 số" required>
+            <input type="text" name="otp" maxlength="6" pattern="^[0-9]{6}$" class="form-control py-2" placeholder="Mã OTP 6 số" required>
+            <div class="invalid-feedback">Mã OTP phải gồm đúng 6 chữ số!</div>
         </div>
 
-        <div class="input-group mb-4">
+        <div class="input-group has-validation mb-4">
             <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-            <input type="password" name="newPassword" class="form-control py-2" placeholder="Mật khẩu mới" required>
+            <input type="password" name="newPassword" minlength="6" class="form-control py-2" placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" required>
+            <div class="invalid-feedback">Mật khẩu mới phải có ít nhất 6 ký tự!</div>
         </div>
 
         <button type="submit" class="btn btn-custom w-100 mb-4">Cập nhật mật khẩu</button>
@@ -52,5 +51,19 @@
     </form>
 </div>
 
+<script>
+(() => {
+    'use strict';
+    document.querySelectorAll('.needs-validation').forEach(form => {
+        form.addEventListener('submit', e => {
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+</script>
 </body>
 </html>

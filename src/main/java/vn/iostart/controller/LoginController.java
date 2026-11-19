@@ -12,9 +12,11 @@ import vn.iostart.entity.User;
 import vn.iostart.service.IUserService;
 import vn.iostart.service.impl.UserServiceImpl;
 import vn.iostart.util.Constant;
+import vn.iostart.util.ValidationUtil;
 
 @WebServlet(urlPatterns = "/login")
 public class LoginController extends HttpServlet {
+    private static final long serialVersionUID = 1L;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -46,22 +48,20 @@ public class LoginController extends HttpServlet {
 
         String username = req.getParameter("username");
         String password = req.getParameter("password");
-        boolean isRememberMe = false;
-        String remember = req.getParameter("remember");
-        if ("on".equals(remember)) {
-            isRememberMe = true;
-        }
+        boolean isRememberMe = "on".equals(req.getParameter("remember"));
 
-        String alertMsg = "";
-        if (username.isEmpty() || password.isEmpty()) {
-            alertMsg = "Tài khoản hoặc mật khẩu không được rỗng";
-            req.setAttribute("alert", alertMsg);
+        // Validation dữ liệu đầu vào
+        if (ValidationUtil.isBlank(username) || ValidationUtil.isBlank(password)) {
+            req.setAttribute("alert", "Tài khoản hoặc mật khẩu không được để trống!");
+            req.setAttribute("username", username);
             req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
             return;
         }
 
+        username = username.trim();
         IUserService service = new UserServiceImpl();
         User user = service.login(username, password);
+
         if (user != null) {
             HttpSession session = req.getSession(true);
             session.setAttribute("account", user);
@@ -70,13 +70,15 @@ public class LoginController extends HttpServlet {
             }
             resp.sendRedirect(req.getContextPath() + "/waiting");
         } else {
+            String alertMsg;
             User checkUser = service.get(username);
             if (checkUser != null && !checkUser.getStatus()) {
                 alertMsg = "Tài khoản chưa được kích hoạt qua OTP!";
             } else {
-                alertMsg = "Tài khoản hoặc mật khẩu không đúng";
+                alertMsg = "Tài khoản hoặc mật khẩu không đúng!";
             }
             req.setAttribute("alert", alertMsg);
+            req.setAttribute("username", username);
             req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
         }
     }

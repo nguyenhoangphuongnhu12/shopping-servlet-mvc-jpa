@@ -4,12 +4,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${video != null ? 'Cập Nhật Video' : 'Thêm Video Mới'}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>${video != null && video.videoId > 0 ? 'Cập Nhật Video' : 'Thêm Video Mới'}</title>
     <style>
-        body { background-color: #f4f7fb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .navbar-custom { background: linear-gradient(90deg, #0077b6, #0096c7); }
         .form-card { border: 1px solid #e0ecf8; border-radius: 12px; overflow: hidden; background: #fff; }
         .form-card-header { background: linear-gradient(90deg, #0077b6, #0096c7); color: #fff; padding: 16px 24px; }
         .poster-preview-box { width: 100%; max-height: 240px; border: 2px dashed #90e0ef; border-radius: 8px; background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden; }
@@ -17,61 +13,39 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm mb-4">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="${pageContext.request.contextPath}/home">SHOPPING VIDEO</a>
-            <div class="ms-auto d-flex align-items-center gap-3">
-                <c:if test="${not empty sessionScope.account}">
-                    <span class="text-white small">
-                        Xin chào, <strong>${not empty sessionScope.account.fullName ? sessionScope.account.fullName : sessionScope.account.username}</strong>
-                    </span>
-                </c:if>
-                <div class="d-flex gap-2">
-                    <a href="${pageContext.request.contextPath}/home" class="btn btn-outline-light btn-sm">Trang chủ</a>
-                    <a href="${pageContext.request.contextPath}/video" class="btn btn-light btn-sm text-primary fw-semibold">Video của tôi</a>
-                    <c:choose>
-                        <c:when test="${not empty sessionScope.account}">
-                            <a href="${pageContext.request.contextPath}/logout" class="btn btn-danger btn-sm">Đăng xuất</a>
-                        </c:when>
-                        <c:otherwise>
-                            <a href="${pageContext.request.contextPath}/login" class="btn btn-warning btn-sm">Đăng nhập</a>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container pb-5" style="max-width: 720px;">
+    <div class="pb-4 mx-auto" style="max-width: 720px;">
         <c:if test="${not empty error}">
             <div class="alert alert-danger shadow-sm">${error}</div>
         </c:if>
 
         <div class="form-card shadow-sm">
             <div class="form-card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold">${video != null ? 'Cập Nhật Thông Tin Video' : 'Đăng Tải Video Mới'}</h5>
+                <h5 class="mb-0 fw-bold">${video != null && video.videoId > 0 ? 'Cập Nhật Thông Tin Video' : 'Đăng Tải Video Mới'}</h5>
                 <a href="${pageContext.request.contextPath}/video" class="btn btn-light btn-sm text-primary fw-semibold">Quay lại</a>
             </div>
 
             <div class="card-body p-4">
-                <form method="post" action="${pageContext.request.contextPath}/video/add" enctype="multipart/form-data">
-                    <input type="hidden" name="videoId" value="${video.videoId}" />
+                <form method="post" action="${pageContext.request.contextPath}/video/add" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <input type="hidden" name="videoId" value="${video.videoId > 0 ? video.videoId : ''}" />
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Tiêu đề Video <span class="text-danger">*</span></label>
-                        <input type="text" name="title" class="form-control" placeholder="Nhập tiêu đề video..." value="${video.title}" required />
+                        <input type="text" name="title" minlength="3" maxlength="200" class="form-control" placeholder="Nhập tiêu đề video (3 - 200 ký tự)..." value="${video.title}" required />
+                        <div class="invalid-feedback">Tiêu đề video không được để trống và phải từ 3 đến 200 ký tự!</div>
                     </div>
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Ảnh bìa (Poster)</label>
-                            <input type="file" name="posterFile" id="posterInput" class="form-control" accept="image/*" onchange="previewPoster(event)" />
+                            <input type="file" name="posterFile" id="posterInput" class="form-control" accept="image/jpeg,image/png,image/webp" onchange="previewPoster(event)" />
                             <div class="form-text">Định dạng: JPG, PNG, WEBP.</div>
+                            <div class="invalid-feedback">Chỉ chấp nhận ảnh định dạng JPG, PNG hoặc WEBP!</div>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">File Video (.mp4) <c:if test="${video == null}"><span class="text-danger">*</span></c:if></label>
-                            <input type="file" name="videoFile" class="form-control" accept="video/mp4" ${video == null ? 'required' : ''} />
+                            <label class="form-label fw-semibold">File Video (.mp4) <c:if test="${video == null || video.videoId == 0}"><span class="text-danger">*</span></c:if></label>
+                            <input type="file" name="videoFile" id="videoInput" class="form-control" accept="video/mp4" onchange="validateVideoFile(event)" ${video == null || video.videoId == 0 ? 'required' : ''} />
+                            <div class="invalid-feedback">Vui lòng chọn file video định dạng .mp4!</div>
                             <c:if test="${not empty video.videoUrl}">
                                 <div class="form-text text-success text-truncate">File hiện tại: ${video.videoUrl}</div>
                             </c:if>
@@ -116,15 +90,48 @@
 
     <script>
         function previewPoster(event) {
-            const file = event.target.files[0];
+            const input = event.target;
+            const file = input.files[0];
             if (file) {
+                const validExts = ['.jpg', '.jpeg', '.png', '.webp'];
+                const isValid = validExts.some(ext => file.name.toLowerCase().endsWith(ext));
+                if (!isValid) {
+                    input.setCustomValidity('Chỉ chấp nhận ảnh JPG, PNG, WEBP!');
+                    return;
+                }
+                input.setCustomValidity('');
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.getElementById('posterPreview').src = e.target.result;
                 };
                 reader.readAsDataURL(file);
+            } else {
+                input.setCustomValidity('');
             }
         }
+
+        function validateVideoFile(event) {
+            const input = event.target;
+            const file = input.files[0];
+            if (file && !file.name.toLowerCase().endsWith('.mp4')) {
+                input.setCustomValidity('Chỉ chấp nhận file video .mp4!');
+            } else {
+                input.setCustomValidity('');
+            }
+        }
+
+        (() => {
+            'use strict';
+            document.querySelectorAll('.needs-validation').forEach(form => {
+                form.addEventListener('submit', e => {
+                    if (!form.checkValidity()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
     </script>
 </body>
 </html>

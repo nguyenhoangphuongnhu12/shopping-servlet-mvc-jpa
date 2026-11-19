@@ -22,14 +22,11 @@
 </head>
 <body class="bg-light">
 
-<!-- Header dùng chung -->
 <jsp:include page="/common/admin_header.jsp" />
 
 <div class="d-flex">
-    <!-- Sidebar dùng chung -->
     <jsp:include page="/common/admin_sidebar.jsp" />
 
-    <!-- Nội dung chính -->
     <div class="flex-grow-1 p-4">
         <div class="bg-white border rounded shadow-sm" style="max-width: 850px;">
             <div class="bg-light p-3 border-bottom text-secondary" style="font-size: 15px;">
@@ -39,22 +36,27 @@
             <div class="p-4">
                 <h2 class="fw-light mb-4" style="color: #444;">Danh mục mới:</h2>
 
-                <form action="${pageContext.request.contextPath}/admin/category/insert" method="post" enctype="multipart/form-data">
+                <c:if test="${not empty alert}">
+                    <div class="alert alert-danger py-2">${alert}</div>
+                </c:if>
+
+                <form action="${pageContext.request.contextPath}/admin/category/insert" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                     <input type="hidden" name="status" value="1" />
                     
                     <div class="mb-4">
                         <label class="form-label fw-bold text-secondary fs-5">Tên danh mục:</label>
-                        <input type="text" name="categoryname" class="form-control py-2" placeholder="Nhập tên danh mục" required style="border-color: #ccc;">
+                        <input type="text" name="categoryname" minlength="2" maxlength="100" class="form-control py-2" placeholder="Nhập tên danh mục" required style="border-color: #ccc;">
+                        <div class="invalid-feedback">Tên danh mục không được để trống (2 - 100 ký tự)!</div>
                     </div>
 
                     <div class="mb-4">
-                        <!-- Khung xem trước ảnh tròn -->
                         <div class="mb-3">
                             <img id="imagePreview" src="#" alt="Xem trước ảnh" class="preview-img-circle shadow-sm border" />
                         </div>
 
                         <label class="form-label fw-bold text-secondary fs-5 d-block">Ảnh đại diện:</label>
-                        <input type="file" id="imageInput" name="images1" class="form-control d-inline-block w-auto" accept="image/*" required onchange="previewImage(event)">
+                        <input type="file" id="imageInput" name="images1" class="form-control d-inline-block w-auto" accept="image/jpeg,image/png,image/webp" required onchange="previewImage(event)">
+                        <div class="invalid-feedback">Vui lòng chọn ảnh đại diện định dạng JPG, PNG hoặc WEBP!</div>
                     </div>
 
                     <div class="mt-4 pt-2">
@@ -73,19 +75,41 @@
         const preview = document.getElementById('imagePreview');
         
         if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const validExts = ['.jpg', '.jpeg', '.png', '.webp'];
+            const isValid = validExts.some(ext => file.name.toLowerCase().endsWith(ext));
+            if (!isValid) {
+                input.setCustomValidity('Chỉ chấp nhận ảnh JPG, PNG, WEBP!');
+                preview.src = '#';
+                preview.style.display = 'none';
+                return;
+            }
+            input.setCustomValidity('');
             const reader = new FileReader();
-            
             reader.onload = function(e) {
                 preview.src = e.target.result;
                 preview.style.display = 'block';
-            }
-            
-            reader.readAsDataURL(input.files[0]);
+            };
+            reader.readAsDataURL(file);
         } else {
+            input.setCustomValidity('');
             preview.src = '#';
             preview.style.display = 'none';
         }
     }
+
+    (() => {
+        'use strict';
+        document.querySelectorAll('.needs-validation').forEach(form => {
+            form.addEventListener('submit', e => {
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

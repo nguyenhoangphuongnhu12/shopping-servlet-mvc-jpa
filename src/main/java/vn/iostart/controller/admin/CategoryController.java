@@ -10,6 +10,7 @@ import vn.iostart.entity.Category;
 import vn.iostart.service.ICategoryService;
 import vn.iostart.service.impl.CategoryServiceImpl;
 import vn.iostart.util.Constant;
+import vn.iostart.util.ValidationUtil;
 
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 25)
 @WebServlet(urlPatterns = { "/admin/categories", "/admin/category/add", "/admin/category/insert",
@@ -58,18 +59,33 @@ public class CategoryController extends HttpServlet {
 
         if (url.contains("/admin/category/insert")) {
             String categoryname = req.getParameter("categoryname");
-            int status = Integer.parseInt(req.getParameter("status"));
+            String statusStr = req.getParameter("status");
             String images = req.getParameter("images");
+            Part part = req.getPart("images1");
 
+            String rawFile = (part != null && part.getSubmittedFileName() != null && !part.getSubmittedFileName().trim().isEmpty())
+                    ? Paths.get(part.getSubmittedFileName()).getFileName().toString() : null;
+
+            // Validation form insert category
+            if (ValidationUtil.isBlank(categoryname)) {
+                req.setAttribute("alert", "Tên danh mục không được để trống!");
+                req.getRequestDispatcher("/views/admin/add-category.jsp").forward(req, resp);
+                return;
+            }
+            if (rawFile != null && !ValidationUtil.isImageFile(rawFile)) {
+                req.setAttribute("alert", "Ảnh danh mục chỉ chấp nhận JPG, JPEG, PNG hoặc WEBP!");
+                req.getRequestDispatcher("/views/admin/add-category.jsp").forward(req, resp);
+                return;
+            }
+
+            int status = !ValidationUtil.isBlank(statusStr) ? Integer.parseInt(statusStr) : 1;
             Category category = new Category();
-            category.setCategoryname(categoryname);
+            category.setCategoryname(categoryname.trim());
             category.setStatus(status);
 
             try {
-                Part part = req.getPart("images1");
-                if (part != null && part.getSubmittedFileName() != null && !part.getSubmittedFileName().trim().isEmpty()) {
-                    String filename = Paths.get(part.getSubmittedFileName()).getFileName().toString();
-                    String ext = filename.substring(filename.lastIndexOf(".") + 1);
+                if (rawFile != null) {
+                    String ext = rawFile.substring(rawFile.lastIndexOf(".") + 1);
                     String fname = System.currentTimeMillis() + "." + ext;
                     part.write(uploadPath + File.separator + fname);
                     category.setImages(fname);
@@ -88,20 +104,37 @@ public class CategoryController extends HttpServlet {
         } else if (url.contains("/admin/category/update")) {
             int categoryid = Integer.parseInt(req.getParameter("categoryid"));
             String categoryname = req.getParameter("categoryname");
-            int status = Integer.parseInt(req.getParameter("status"));
+            String statusStr = req.getParameter("status");
             String images = req.getParameter("images");
+            Part part = req.getPart("images1");
 
             Category category = cateService.findById(categoryid);
+            String rawFile = (part != null && part.getSubmittedFileName() != null && !part.getSubmittedFileName().trim().isEmpty())
+                    ? Paths.get(part.getSubmittedFileName()).getFileName().toString() : null;
+
+            // Validation form update category
+            if (ValidationUtil.isBlank(categoryname)) {
+                req.setAttribute("alert", "Tên danh mục không được để trống!");
+                req.setAttribute("cate", category);
+                req.getRequestDispatcher("/views/admin/edit-category.jsp").forward(req, resp);
+                return;
+            }
+            if (rawFile != null && !ValidationUtil.isImageFile(rawFile)) {
+                req.setAttribute("alert", "Ảnh danh mục chỉ chấp nhận JPG, JPEG, PNG hoặc WEBP!");
+                req.setAttribute("cate", category);
+                req.getRequestDispatcher("/views/admin/edit-category.jsp").forward(req, resp);
+                return;
+            }
+
+            int status = !ValidationUtil.isBlank(statusStr) ? Integer.parseInt(statusStr) : category.getStatus();
             String fileold = category.getImages();
 
-            category.setCategoryname(categoryname);
+            category.setCategoryname(categoryname.trim());
             category.setStatus(status);
 
             try {
-                Part part = req.getPart("images1");
-                if (part != null && part.getSubmittedFileName() != null && !part.getSubmittedFileName().trim().isEmpty()) {
-                    String filename = Paths.get(part.getSubmittedFileName()).getFileName().toString();
-                    String ext = filename.substring(filename.lastIndexOf(".") + 1);
+                if (rawFile != null) {
+                    String ext = rawFile.substring(rawFile.lastIndexOf(".") + 1);
                     String fname = System.currentTimeMillis() + "." + ext;
                     part.write(uploadPath + File.separator + fname);
                     category.setImages(fname);

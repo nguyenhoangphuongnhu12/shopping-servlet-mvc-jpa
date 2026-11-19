@@ -18,6 +18,7 @@ import vn.iostart.entity.Video;
 import vn.iostart.service.IVideoService;
 import vn.iostart.service.impl.VideoServiceImpl;
 import vn.iostart.util.Constant;
+import vn.iostart.util.ValidationUtil;
 
 @WebServlet(urlPatterns = { "/video", "/video/detail", "/video/add", "/video/edit", "/video/delete" })
 @MultipartConfig(
@@ -114,27 +115,59 @@ public class VideoController extends HttpServlet {
             String title = req.getParameter("title");
             String description = req.getParameter("description");
             boolean active = Boolean.parseBoolean(req.getParameter("active"));
+            boolean isEdit = (videoIdStr != null && !videoIdStr.trim().isEmpty());
 
-            // Xử lý file ảnh Poster
-            String posterFileName = null;
             Part posterPart = req.getPart("posterFile");
-            if (posterPart != null && posterPart.getSize() > 0 && posterPart.getSubmittedFileName() != null && !posterPart.getSubmittedFileName().isEmpty()) {
-                String rawPoster = Paths.get(posterPart.getSubmittedFileName()).getFileName().toString();
+            Part videoPart = req.getPart("videoFile");
+
+            String rawPoster = (posterPart != null && posterPart.getSize() > 0
+                    && posterPart.getSubmittedFileName() != null && !posterPart.getSubmittedFileName().trim().isEmpty())
+                    ? Paths.get(posterPart.getSubmittedFileName()).getFileName().toString() : null;
+
+            String rawVideo = (videoPart != null && videoPart.getSize() > 0
+                    && videoPart.getSubmittedFileName() != null && !videoPart.getSubmittedFileName().trim().isEmpty())
+                    ? Paths.get(videoPart.getSubmittedFileName()).getFileName().toString() : null;
+
+            // 1. Validation dữ liệu form insert / edit
+            String validationError = null;
+            if (ValidationUtil.isBlank(title)) {
+                validationError = "Tiêu đề video không được để trống!";
+            } else if (title.trim().length() < 3 || title.trim().length() > 200) {
+                validationError = "Tiêu đề video phải từ 3 đến 200 ký tự!";
+            } else if (rawPoster != null && !ValidationUtil.isImageFile(rawPoster)) {
+                validationError = "Ảnh bìa chỉ chấp nhận định dạng JPG, JPEG, PNG hoặc WEBP!";
+            } else if (!isEdit && rawVideo == null) {
+                validationError = "Vui lòng chọn file video (.mp4) khi thêm mới!";
+            } else if (rawVideo != null && !ValidationUtil.isVideoFile(rawVideo)) {
+                validationError = "Hệ thống chỉ hỗ trợ tải lên file video định dạng .mp4!";
+            }
+
+            if (validationError != null) {
+                Video draft = isEdit ? videoService.findById(Integer.parseInt(videoIdStr)) : new Video();
+                draft.setTitle(title);
+                draft.setDescription(description);
+                draft.setActive(active);
+                req.setAttribute("error", validationError);
+                req.setAttribute("video", draft);
+                req.getRequestDispatcher("/views/web/video-form.jsp").forward(req, resp);
+                return;
+            }
+
+            // 2. Lưu file sau khi dữ liệu hợp lệ
+            String posterFileName = null;
+            if (rawPoster != null) {
                 posterFileName = System.currentTimeMillis() + "_img_" + rawPoster;
                 posterPart.write(uploadPath + File.separator + posterFileName);
             }
 
-            // Xử lý file Video (.mp4)
             String videoFileName = null;
-            Part videoPart = req.getPart("videoFile");
-            if (videoPart != null && videoPart.getSize() > 0 && videoPart.getSubmittedFileName() != null && !videoPart.getSubmittedFileName().isEmpty()) {
-                String rawVideo = Paths.get(videoPart.getSubmittedFileName()).getFileName().toString();
+            if (rawVideo != null) {
                 videoFileName = System.currentTimeMillis() + "_vid_" + rawVideo;
                 videoPart.write(uploadPath + File.separator + videoFileName);
             }
 
             Video video;
-            if (videoIdStr != null && !videoIdStr.isEmpty()) {
+            if (isEdit) {
                 video = videoService.findById(Integer.parseInt(videoIdStr));
             } else {
                 video = new Video();
@@ -142,13 +175,13 @@ public class VideoController extends HttpServlet {
                 video.setUser(user);
             }
 
-            video.setTitle(title);
-            video.setDescription(description);
+            video.setTitle(title.trim());
+            video.setDescription(description != null ? description.trim() : "");
             video.setActive(active);
             if (posterFileName != null) video.setPoster(posterFileName);
             if (videoFileName != null) video.setVideoUrl(videoFileName);
 
-            if (videoIdStr != null && !videoIdStr.isEmpty()) {
+            if (isEdit) {
                 videoService.update(video);
             } else {
                 videoService.insert(video);
